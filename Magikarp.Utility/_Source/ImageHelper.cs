@@ -14,7 +14,7 @@ namespace Magikarp.Utility
     /// </summary>
     /// <remarks>
     /// Author: 黃竣祥
-    /// Version: [Version]
+    /// Version: 20170911
     /// </remarks>
     public class ImageHelper
     {
@@ -30,11 +30,11 @@ namespace Magikarp.Utility
         /// <returns>圖片物件。</returns>
         /// <remarks>
         /// Author: 黃竣祥
-        /// Time: [Time]
+        /// Time: 2017/09/11
         /// History: N/A
         /// DB Object: N/A      
         /// </remarks>
-        public static BitmapImage Load(string pi_sImageFullPath, BitmapCacheOption pi_nBitmapCacheOption = BitmapCacheOption.OnLoad, BitmapCreateOptions pi_nBitmapCreateOption = BitmapCreateOptions.IgnoreImageCache)
+        public static BitmapImage LoadBitmapImage(string pi_sImageFullPath, BitmapCacheOption pi_nBitmapCacheOption = BitmapCacheOption.OnLoad, BitmapCreateOptions pi_nBitmapCreateOption = BitmapCreateOptions.IgnoreImageCache)
         {
             BitmapImage objReturn = new BitmapImage();
 
@@ -43,10 +43,10 @@ namespace Magikarp.Utility
             objReturn.CacheOption = BitmapCacheOption.OnLoad;
             objReturn.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
             objReturn.EndInit();
-
+            
             return objReturn;
         }
-
+                
         /// <summary>
         /// 比對圖片雜湊值是否一致。
         /// </summary>
@@ -55,7 +55,7 @@ namespace Magikarp.Utility
         /// <returns>比對圖片是否一致。</returns>
         /// <remarks>
         /// Author: 黃竣祥
-        /// Time: [Time]
+        /// Time: 2017/09/11
         /// History: N/A
         /// DB Object: N/A      
         /// </remarks>

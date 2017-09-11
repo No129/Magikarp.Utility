@@ -61,8 +61,12 @@
     <Compile Include="_Source\ImageHelper.cs" />
     <Compile Include="_Source\SecurityHelper.cs" />
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="_Library\" />
+    <Content Include="_Library\ICSharpCode.SharpZipLib.dll" />
+    <Content Include="_Library\itextsharp.dll" />
+    <Content Include="_Library\itextsharp.pdfa.dll" />
+    <Content Include="_Library\itextsharp.xtra.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

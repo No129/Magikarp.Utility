@@ -13,75 +13,161 @@ namespace Magikarp.Utility
     /// </summary>
     /// <remarks>
     /// Author: 黃竣祥
-    /// Version: [Version]
+    /// Version: 20170911
     /// </remarks>
     public class FileOperator
     {
 
         #region -- 靜態方法 (Shared Method ) --
 
+        /// <summary>
+        /// 壓縮路徑(遞迴)為單一檔案。
+        /// </summary>
+        /// <param name="pi_sDirectoryPath">待壓縮路徑根目錄。</param>
+        /// <returns>壓縮檔路徑。</returns>
+        /// <remarks>
+        /// Author: 黃竣祥
+        /// Time: 2017/09/11
+        /// History: N/A
+        /// DB Object: N/A      
+        /// </remarks>
         public static string CompressDirectory(string pi_sDirectoryPath)
         {
-            string zipedFile = string.Format("{0}.zip", pi_sDirectoryPath);
+            string sReturn = string.Format("{0}.zip", pi_sDirectoryPath);
 
-            using (System.IO.FileStream ZipFile = System.IO.File.Create(zipedFile))
+            using (System.IO.FileStream objFileStream = System.IO.File.Create(sReturn))
             {
-                using (ZipOutputStream s = new ZipOutputStream(ZipFile))
+                using (ZipOutputStream objZipOutputStream = new ZipOutputStream(objFileStream))
                 {
-                    FileOperator.ZipSetp(pi_sDirectoryPath, s, "");
+                    FileOperator.ZipSetp(pi_sDirectoryPath, objZipOutputStream, "");
                 }
             }
 
-            return zipedFile;
+            return sReturn;
         }
 
-        #endregion     
+        /// <summary>
+        /// 解壓縮文件。
+        /// </summary>
+        /// <param name="pi_sTargetFile">目標文件。</param>
+        /// <returns>解壓縮路徑。</returns>
+        /// <remarks>
+        /// Author: 黃竣祥
+        /// Time: 2017/09/11
+        /// History: N/A
+        /// DB Object: N/A      
+        /// </remarks>
+        public static string Decompress(string pi_sTargetFile)
+        {
+            if (!File.Exists(pi_sTargetFile))
+            {
+                throw new System.IO.FileNotFoundException("指定要解壓縮的文件: " + pi_sTargetFile + " 不存在!");
+            }
+
+            string sReturn = string.Format("{0}\\{1}", System.IO.Path.GetDirectoryName(pi_sTargetFile), System.IO.Path.GetFileNameWithoutExtension(pi_sTargetFile));
+            
+            if(System.IO.Directory.Exists(sReturn) == false)
+            {
+                Directory.CreateDirectory(sReturn);
+            }            
+
+            using (ZipInputStream objZipInputStream = new ZipInputStream(File.OpenRead(pi_sTargetFile)))
+            {
+                ZipEntry objZipEntry = null;
+
+                while ((objZipEntry = objZipInputStream.GetNextEntry()) != null)
+                {
+                    string sEntryDirectory = Path.GetDirectoryName(objZipEntry.Name);
+                    string sEntryFileName = Path.GetFileName(objZipEntry.Name);
+
+                    if (sEntryDirectory.Length > 0)
+                    {
+                        Directory.CreateDirectory(string.Format("{0}\\{1}", sReturn, sEntryDirectory));
+                    }
+
+                    if (sEntryFileName != String.Empty)
+                    {
+                        using (FileStream streamWriter = File.Create(string.Format("{0}\\{1}", sReturn, objZipEntry.Name)))
+                        {
+                            int size = 2048;
+                            byte[] data = new byte[2048];
+
+                            while (true)
+                            {
+                                size = objZipInputStream.Read(data, 0, data.Length);
+                                if (size > 0)
+                                {
+                                    streamWriter.Write(data, 0, size);
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return sReturn;
+        }
+
+        #endregion
 
         #region -- 私有函式 ( Private Method) --
 
         /// <summary>
-        /// 遞歸遍歷目錄
+        /// 遞迴目錄。
         /// </summary>
-        /// <param name="strDirectory">要進行壓縮的文件夾</param>
-        /// <param name="s">The ZipOutputStream Object.</param>
-        /// <param name="parentPath">The parent path.</param>
-        private static void ZipSetp(string strDirectory, ZipOutputStream s, string parentPath)
+        /// <param name="pi_strDirectory">要進行壓縮的文件夾</param>
+        /// <param name="pi_objZipOutputStream">ZipOutputStream 實體。</param>
+        /// <param name="pi_sParentPath">壓縮檔內的上層路徑。</param>
+        /// <remarks>
+        /// Author: 黃竣祥
+        /// Time: 2017/09/11
+        /// History: N/A
+        /// DB Object: N/A      
+        /// </remarks>
+        private static void ZipSetp(string pi_strDirectory, ZipOutputStream pi_objZipOutputStream, string pi_sParentPath)
         {
-            if (strDirectory[strDirectory.Length - 1] != Path.DirectorySeparatorChar)
+            if (pi_strDirectory[pi_strDirectory.Length - 1] != Path.DirectorySeparatorChar)
             {
-                strDirectory += Path.DirectorySeparatorChar;
+                pi_strDirectory += Path.DirectorySeparatorChar;
             }
 
-            string[] filenames = Directory.GetFileSystemEntries(strDirectory);
-            foreach (string file in filenames)// 遍历所有的文件和目录
+            string[] filenames = Directory.GetFileSystemEntries(pi_strDirectory);
+
+            // 遍歷所有的文件和目錄。
+            foreach (string sFile in filenames)
             {
-                if (Directory.Exists(file))// 先当作目录处理如果存在这个目录就递归Copy该目录下面的文件
+                if (Directory.Exists(sFile)) // 先視為目錄處理：若存在目錄，就遞迴該目錄包含的文件及目錄。
                 {
-                    string pPath = parentPath;
-                    pPath += file.Substring(file.LastIndexOf("\\") + 1);
-                    pPath += "\\";
-                    ZipSetp(file, s, pPath);
+                    string sParentPath = pi_sParentPath;
+
+                    sParentPath += sFile.Substring(sFile.LastIndexOf("\\") + 1); // 累積壓縮檔內的路徑。
+                    sParentPath += "\\";
+                    ZipSetp(sFile, pi_objZipOutputStream, sParentPath);
                 }
-                else // 否则直接压缩文件
-                {
-                    //打开压缩文件
-                    using (FileStream fs = File.OpenRead(file))
+                else // 否则視為文件處理。
+                {                    
+                    using (FileStream objFileStream = File.OpenRead(sFile)) // 打開壓縮檔案。
                     {
-                        byte[] buffer = new byte[fs.Length];
-                        fs.Read(buffer, 0, buffer.Length);
-                        string fileName = parentPath + file.Substring(file.LastIndexOf("\\") + 1);
-                        ZipEntry entry = new ZipEntry(fileName);
-                        entry.DateTime = DateTime.Now;
-                        entry.Size = fs.Length;
-                        fs.Close();
-                        s.PutNextEntry(entry);
-                        s.Write(buffer, 0, buffer.Length);
+                        byte[] objBuffer = new byte[objFileStream.Length];
+                        string sFileName = pi_sParentPath + sFile.Substring(sFile.LastIndexOf("\\") + 1);
+                        ZipEntry objZipEntry = new ZipEntry(sFileName);
+
+                        objFileStream.Read(objBuffer, 0, objBuffer.Length); //將檔案讀入暫存器 ( objBuffer )。
+                        objZipEntry.DateTime = DateTime.Now;
+                        objZipEntry.Size = objFileStream.Length;
+                        objFileStream.Close();
+                        pi_objZipOutputStream.PutNextEntry(objZipEntry);
+                        pi_objZipOutputStream.Write(objBuffer, 0, objBuffer.Length); //將暫存器內容寫入壓縮檔。
                     }
                 }
             }
         }
 
         #endregion
-        
+
     }
 }

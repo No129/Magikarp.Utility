@@ -13,7 +13,7 @@ namespace Magikarp.Utility
     /// </summary>
     /// <remarks>
     /// Author: 黃竣祥
-    /// Version: [Version]
+    /// Version: 20170911
     /// </remarks>
     public class SecurityHelper
     {
@@ -26,7 +26,7 @@ namespace Magikarp.Utility
         /// <returns>檔案雜湊值。</returns>
         /// <remarks>
         /// Author: 黃竣祥
-        /// Time: [Time]
+        /// Time: 2017/09/11
         /// History: N/A
         /// DB Object: N/A      
         /// </remarks>
