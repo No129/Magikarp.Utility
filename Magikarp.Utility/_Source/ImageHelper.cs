@@ -21,6 +21,8 @@ namespace Magikarp.Utility
 
         #region -- 靜態方法 (Shared Method ) --
 
+        
+
         /// <summary>
         /// 載入指定路徑圖片至記憶體。
         /// </summary>

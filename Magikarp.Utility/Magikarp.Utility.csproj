@@ -60,6 +60,7 @@
     <Compile Include="_Source\FileOperator.cs" />
     <Compile Include="_Source\ImageHelper.cs" />
     <Compile Include="_Source\SecurityHelper.cs" />
+    <Compile Include="_Source\SteganographyHelper.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
